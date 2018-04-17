@@ -17,6 +17,7 @@ function eathex_click(target_id, has_controls){
 //Remove eathex from the target
 function eathex_exit(){
 	eathex.target_element.removeChild(eathex.renderer.domElement);
+	$("#eathex_load_widget").remove();
 	$("#eathex_render_window").width(0);
 	$("#eathex_render_window").height(0);
 	$("#eathex_exit").width(0);
@@ -42,7 +43,10 @@ function setup(){
 	$(document.body).prepend("<div id='eathex_overlay'></div>");
 	$(document.body).append("<div id='eathex_exit' onclick='eathex_exit()'></div>");
 	$("#eathex_exit").css({
-								"background-color":"rgba(0,0,0,1)",
+								"background-image":"url(media/eathex_exit.png)",
+								"background-size":"cover",
+								"margin":"20px",
+								"cursor":"pointer",
 								"position":"fixed",
 								"top":"0px",
 								"right":"0px",
@@ -75,6 +79,7 @@ function setup(){
 									"left":"0",
 									"right":"0",
 									"margin":"auto",
+									"cursor":"grabbing",
 									"box-shadow":"0 0 10px",
 									"transition":"all 0.5s",
 									"-webkit-transition":"all 0.5s"
@@ -119,7 +124,6 @@ function init_3D(has_controls){
 function resize() {
 	var width = eathex.target_element.clientWidth;
 	var height = eathex.target_element.clientHeight;
-
 	eathex.renderer.setSize(width, height);
 	eathex.camera.aspect = width/height;
 }
@@ -131,23 +135,38 @@ function loadOBJ(filename){
 			$("#eathex_render_window").prepend("<div id='eathex_load_overlay'></div>");
 			$("#eathex_load_overlay").css({
 				"position":"absolute",
-				"width":"100%",
-				"height":"100%",
+				"width":"100%","height":"100%",
 				"background-color":"rgba(0,0,0,1)",
 				"transition":"background-color 0.5s",
 				"-webkit-transition":"background-color 0.5s"
 			});
+			$("#eathex_load_overlay").prepend("<div id='eathex_load_widget'></div>");
+			$("#eathex_load_widget").css({
+				"position":"absolute",
+				"width":"30%",
+				"height":"30%",
+				"margin":"auto",
+				"top":"0", "left":"0","right":"0","bottom":"0",
+				"background-color":"white"
+			});
 			loader.load(
 				filename,
 				function(object){
-					eathex.scene.add(object);
+					eathex.scene.add(object);	
 					eathex.mesh = object;
 				},
 				function(xhr){
-					alert((xhr.loaded/xhr.total*100)+'% loaded');
+					if(xhr.loaded/xhr.total*100 != 100){
+						$("#eathex_load_widget").empty();
+						$("#eathex_load_widget").prepend("<div style='text-align:center;position: relative;float: left;top: 50%;left: 50%;transform: translate(-50%, -50%);'>"+"loading...<br>"+(Math.round(xhr.loaded/xhr.total*100))+'%</div>');
+					}
+					else{
+						$("#eathex_load_overlay").remove();
+					}
 				},
 				function(error){
-					console.log("Couldn't load file...");
+					$("#eathex_load_widget").empty();
+					$("#eathex_load_widget").prepend("<div style='text-align:center;position: relative;float: left;top: 50%;left: 50%;transform: translate(-50%, -50%);'>"+"Failed to load model...");
 			});
 		}
 		else{ eathex.scene.add(eathex.mesh); }
