@@ -6,6 +6,7 @@ var eathex = {
 			renderer:null,
 			mesh:null,
 			content_loaded:false,
+			level:0,
 			ready:false
 			};
 
@@ -38,8 +39,13 @@ function eathex_exit(){
 
 //Generate the host DOM elements for scene
 function setup(){
-	$(document.body).prepend("<div id='eathex_scripts'><script src='build/three.js'></script><script src='OrbitControls.js'></script><script src='OBJLoader.js'></script></div>");
+	$(document.body).prepend("<div id='eathex_scripts'><script src='build/three.js'></script><script src='OrbitControls.js'></script><script src='OBJLoader.js'></script><script src='jquery.topzindex.min.js'></script></div>");
 	if (!window.jQuery){ $("#eathex_scripts").prepend("<script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>"); }
+	eathex.level = Math.max.apply(null, 
+    $.map($('body *'), function(e,n) {
+      if ($(e).css('position') != 'static')
+        return parseInt($(e).css('z-index')) || 1;
+	}));
 	$(document.body).prepend("<div id='eathex_overlay'></div>");
 	$(document.body).append("<div id='eathex_exit' onclick='eathex_exit()'></div>");
 	$("#eathex_exit").css({
@@ -52,6 +58,7 @@ function setup(){
 								"right":"0px",
 								"width":"0px",
 								"height":"0px",
+								"z-index":eathex.level+1,
 								"transition":"all 0.5s",
 								"-webkit-transition":"all 0.5s"
 	});
@@ -64,6 +71,7 @@ function setup(){
 								"left":"0px",
 								"width":"100%",
 								"height":"100%",
+								"z-index":eathex.level+1,
 								"transition":"background-color 0.5s",
 								"-webkit-transition":"background-color 0.5s"
 								});
@@ -80,7 +88,8 @@ function setup(){
 									"right":"0",
 									"margin":"auto",
 									"cursor":"grabbing",
-									"box-shadow":"0 0 10px",
+									"box-shadow":"0 0 10px #000000",
+									"z-index":eathex.level+1,
 									"transition":"all 0.5s",
 									"-webkit-transition":"all 0.5s"
 									});
@@ -137,6 +146,7 @@ function loadOBJ(filename){
 				"position":"absolute",
 				"width":"100%","height":"100%",
 				"background-color":"rgba(0,0,0,1)",
+				"z-index":eathex.level+1,
 				"transition":"background-color 0.5s",
 				"-webkit-transition":"background-color 0.5s"
 			});
@@ -146,6 +156,7 @@ function loadOBJ(filename){
 				"width":"30%",
 				"height":"30%",
 				"margin":"auto",
+				"z-index":eathex.level+1,
 				"top":"0", "left":"0","right":"0","bottom":"0",
 				"background-color":"white"
 			});

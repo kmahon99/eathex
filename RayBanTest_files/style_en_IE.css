@@ -1,0 +1,38 @@
+.wcs-product-confirm-div .wcs-order-details .wcs-six.wcs-columns.wcs-fill{
+    width: 340px;
+}
+.wcs-product-confirm-div .wcs-order-details .wcs-confirm-order-header.wcs-three.wcs-omega{
+    width: 340px;
+}
+body .wcs-print-preview-wrapper .wcs-print-product-amount{
+    font-size: 12px;
+}
+body .wcs-myOrder-cost-details .wcs-one.wcs-columns, 
+body .wcs-myOrder-total-cost-details .wcs-one.wcs-columns{
+    width: 113px;
+}
+body .wcs-myOrder-cost-details .wcs-eight.wcs-columns,
+body .wcs-myOrder-total-cost-details .wcs-eight.wcs-columns{
+    width:550px;
+}
+body .wcs-myOrder-total-cost-details .wcs-one.wcs-columns{
+    width: 113px;
+}
+
+body .wcs-print-preview-wrapper .wcs-container .wcs-six.wcs-columns{
+    width: 407px;
+}
+
+body .wcs-myOrder-details-content .wcs-myOrder-rows .wcs-two.wcs-columns.wcs-omega .wcs-shopping-item-price{
+    width: 84px;
+}
+body .wcs-myOrder-details-content .wcs-myOrder-cost-details .wcs-eight.wcs-columns,
+body .wcs-myOrder-details-content .wcs-myOrder-total-cost-details .wcs-eight.wcs-columns{
+    width:570px;
+}
+body .wcs-myOrder-details-content .wcs-two.wcs-columns.wcs-myOrder-prodTitle{
+    width: 215px;
+}
+body .wcs-spiega-wrapper .wcs-spiega .wcs-columns h5 {
+	width: 120px;
+}
