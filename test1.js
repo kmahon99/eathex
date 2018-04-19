@@ -49,7 +49,7 @@ function setup(){
 	$(document.body).prepend("<div id='eathex_overlay'></div>");
 	$(document.body).append("<div id='eathex_exit' onclick='eathex_exit()'></div>");
 	$("#eathex_exit").css({
-								"background-image":"url(media/eathex_exit.png)",
+								"background-image":"url(media/eathex_exit.PNG)",
 								"background-size":"cover",
 								"margin":"20px",
 								"cursor":"pointer",
@@ -105,6 +105,7 @@ function setup(){
 
 //Set up the scene
 function init_3D(has_controls){
+
 	if(eathex.target_element != null){
 		eathex.scene  = new THREE.Scene();
 		eathex.camera = new THREE.PerspectiveCamera();
@@ -114,14 +115,18 @@ function init_3D(has_controls){
 		eathex.target_element.appendChild(eathex.renderer.domElement);
 
 		var pointLight = new THREE.PointLight(0xFFFFFF);
-		pointLight.position.x = -100;
-		pointLight.position.y = 100;
-		pointLight.position.z = 400;
+		pointLight.position.x = -100; pointLight.position.y = 100; pointLight.position.z = 400;
 
 		eathex.scene.add(eathex.camera);
 		eathex.scene.add(pointLight);
 		eathex.scene.background = new THREE.Color($("#"+eathex.target_element.id).css("background-color"));
-
+		
+		var geometry = new THREE.PlaneGeometry(1000,1000);
+		var material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide});
+		var floor = new THREE.Mesh(geometry, material)
+		floor.rotation.x = 90*Math.PI/180; floor.position.y -= 0.5;
+		eathex.scene.add(floor);
+		
 		$(document).ready(function(){resize();});
 
 		loadOBJ('test_model.obj');
