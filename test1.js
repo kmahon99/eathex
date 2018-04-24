@@ -1,3 +1,4 @@
+
 var eathex = {
 			scene:null,
 			camera:null,
@@ -39,7 +40,7 @@ function eathex_exit(){
 
 //Generate the host DOM elements for scene
 function setup(){
-	$(document.body).prepend("<div id='eathex_scripts'><script src='build/three.js'></script><script src='OrbitControls.js'></script><script src='OBJLoader.js'></script><script src='jquery.topzindex.min.js'></script></div>");
+	$(document.body).prepend("<div id='eathex_scripts'><script src='build/three.js'></script><script src='OrbitControls.js'></script><script src='LoaderSupport.js'></script><script src='Inflate.min.js'></script><script src='FBXLoader.js'></script><script src='jquery.topzindex.min.js'></script></div>");
 	if (!window.jQuery){ $("#eathex_scripts").prepend("<script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>"); }
 	eathex.level = Math.max.apply(null, 
     $.map($('body *'), function(e,n) {
@@ -79,7 +80,6 @@ function setup(){
 	$("#eathex_overlay").prepend("<div id='eathex_render_window'></div>");
 	$("#eathex_render_window").css({
 									"position":"fixed",
-									"background-color":"rgba(83,83,92,1)",
 									"height":"0px",
 									"width":"0px",
 									"top":"0",
@@ -113,23 +113,38 @@ function init_3D(has_controls){
 		eathex.controls = new THREE.OrbitControls(eathex.camera, eathex.target_element);
 		eathex.renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
 		eathex.target_element.appendChild(eathex.renderer.domElement);
+		
+		eathex.scene.background = new THREE.Color( 0xa0a0a0 );
+		eathex.scene.fog = new THREE.Fog( 0xa0a0a0, 200, 1000 );
 
-		var pointLight = new THREE.PointLight(0xFFFFFF);
-		pointLight.position.x = -100; pointLight.position.y = 100; pointLight.position.z = 400;
+		var light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+		light.position.set( 0, 200, 0 );
+		eathex.scene.add( light );
+
+		light = new THREE.DirectionalLight( 0xffffff );
+		light.position.set( 0, 200, 100 );
+		light.castShadow = true;
+		light.shadow.camera.top = 180;
+		light.shadow.camera.bottom = -100;
+		light.shadow.camera.left = -120;
+		light.shadow.camera.right = 120;
+		eathex.scene.add( light );
+
+		var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
+		mesh.rotation.x = - Math.PI / 2;
+		mesh.receiveShadow = true;
+		eathex.scene.add( mesh );
 
 		eathex.scene.add(eathex.camera);
-		eathex.scene.add(pointLight);
-		eathex.scene.background = new THREE.Color($("#"+eathex.target_element.id).css("background-color"));
-		
-		var geometry = new THREE.PlaneGeometry(1000,1000);
-		var material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide});
-		var floor = new THREE.Mesh(geometry, material)
-		floor.rotation.x = 90*Math.PI/180; floor.position.y -= 0.5;
-		eathex.scene.add(floor);
+
+		var grid = new THREE.GridHelper( 2000, 20, 0x000000, 0x000000 );
+		grid.material.opacity = 0.2;
+		grid.material.transparent = true;
+		eathex.scene.add(grid);
 		
 		$(document).ready(function(){resize();});
 
-		loadOBJ('test_model.obj');
+		loadMesh('media/rb_mesh.FBX');
 		animate();
 	}
 	else{ alert("Render window unable to load!"); }
@@ -142,56 +157,30 @@ function resize() {
 	eathex.camera.aspect = width/height;
 }
 
-function loadOBJ(filename){
+function loadMesh(filename){
 	if(eathex.ready){
 		if(eathex.mesh == null){
-			var loader = new THREE.OBJLoader();
-			$("#eathex_render_window").prepend("<div id='eathex_load_overlay'></div>");
-			$("#eathex_load_overlay").css({
-				"position":"absolute",
-				"width":"100%","height":"100%",
-				"background-color":"rgba(0,0,0,1)",
-				"z-index":eathex.level+1,
-				"transition":"background-color 0.5s",
-				"-webkit-transition":"background-color 0.5s"
-			});
-			$("#eathex_load_overlay").prepend("<div id='eathex_load_widget'></div>");
-			$("#eathex_load_widget").css({
-				"position":"absolute",
-				"width":"30%",
-				"height":"30%",
-				"margin":"auto",
-				"z-index":eathex.level+1,
-				"top":"0", "left":"0","right":"0","bottom":"0",
-				"background-color":"white"
-			});
-			loader.load(
-				filename,
-				function(object){
-					eathex.scene.add(object);	
-					eathex.mesh = object;
-				},
-				function(xhr){
-					if(xhr.loaded/xhr.total*100 != 100){
-						$("#eathex_load_widget").empty();
-						$("#eathex_load_widget").prepend("<div style='text-align:center;position: relative;float: left;top: 50%;left: 50%;transform: translate(-50%, -50%);'>"+"loading...<br>"+(Math.round(xhr.loaded/xhr.total*100))+'%</div>');
+			var loader = new THREE.FBXLoader();
+			loader.load( filename, function ( object ) {
+				object.mixer = new THREE.AnimationMixer( object );
+
+				object.traverse( function ( child ) {
+					if ( child.isMesh ) {
+						child.castShadow = true;
+						child.receiveShadow = true;
 					}
-					else{
-						$("#eathex_load_overlay").remove();
-					}
-				},
-				function(error){
-					$("#eathex_load_widget").empty();
-					$("#eathex_load_widget").prepend("<div style='text-align:center;position: relative;float: left;top: 50%;left: 50%;transform: translate(-50%, -50%);'>"+"Failed to load model...");
-			});
-		}
-		else{ eathex.scene.add(eathex.mesh); }
+				});
+					eathex.scene.add( object );
+			} );
+		}		
 	}
+	else{ eathex.scene.add(eathex.mesh); }
 }
+
+
 
 function animate(){
 	requestAnimationFrame(animate);
-	if(eathex.mesh){ eathex.mesh.rotation.y += 0.1 * Math.PI/180; }
 	eathex.controls.update();
 	eathex.renderer.render(eathex.scene, eathex.camera);
 }
@@ -204,3 +193,21 @@ $(window).resize(function(){
 		eathex.renderer.setSize(($(window).height()*0.8)+1, ($(window).height()*0.8)+1);
 	}
 });
+
+function promisifyLoader ( loader, onProgress ) {
+
+  function promiseLoader ( url ) {
+
+    return new Promise( ( resolve, reject ) => {
+
+      loader.load( url, resolve, onProgress, reject );
+
+    } );
+  }
+
+  return {
+    originalLoader: loader,
+    load: promiseLoader,
+  };
+
+}
