@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
-  <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2018-04-24T23:45:13Z</created><keywords></keywords><modified>2018-04-24T23:45:13Z</modified><revision></revision><subject></subject><title></title><unit meter="1.000000" name="centimeter"></unit><up_axis>Y_UP</up_axis></asset>
+  <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2018-04-25T00:02:24Z</created><keywords></keywords><modified>2018-04-25T00:02:24Z</modified><revision></revision><subject></subject><title></title><unit meter="1.000000" name="centimeter"></unit><up_axis>Y_UP</up_axis></asset>
   <library_images>
-    <image id="Map #11-image" name="Map #11"><init_from>floor.tga</init_from></image>
-    <image id="Map #3-image" name="Map #3"><init_from>tex.TGA</init_from></image>
+    <image id="Map #11-image" name="Map #11"><init_from>rb1_FLOOR.jpg</init_from></image>
+    <image id="Map #3-image" name="Map #3"><init_from>rb1_TEX.jpg</init_from></image>
   </library_images>
   <library_materials>
     <material id="Floor" name="Floor">
