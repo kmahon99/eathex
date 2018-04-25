@@ -1,4 +1,3 @@
-
 var eathex = {
 			scene:null,
 			camera:null,
@@ -48,7 +47,7 @@ function setup(){
         return parseInt($(e).css('z-index')) || 1;
 	}));
 	$(document.body).prepend("<div id='eathex_overlay'></div>");
-	$(document.body).append("<div id='eathex_exit' onclick='eathex_exit()'></div>");
+	$("#eathex_overlay").prepend("<div id='eathex_exit' onclick='eathex_exit()'></div>");
 	$("#eathex_exit").css({
 								"background-image":"url(media/eathex_exit.PNG)",
 								"background-size":"cover",
@@ -114,33 +113,28 @@ function init_3D(has_controls){
 		eathex.renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
 		eathex.target_element.appendChild(eathex.renderer.domElement);
 		
-		eathex.scene.background = new THREE.Color( 0xa0a0a0 );
-		eathex.scene.fog = new THREE.Fog( 0xa0a0a0, 200, 1000 );
+		eathex.scene.background = new THREE.Color(0xa0a0a0);
+		eathex.scene.fog = new THREE.Fog(0xa0a0a0,20,100);
 
-		var light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
-		light.position.set( 0, 200, 0 );
-		eathex.scene.add( light );
+		var light = new THREE.HemisphereLight(0xffffff,0x444444);
+		light.position.set(0,200,0);
+		eathex.scene.add(light);
 
-		light = new THREE.DirectionalLight( 0xffffff );
-		light.position.set( 0, 200, 100 );
+		light = new THREE.DirectionalLight(0xffffff);
+		light.position.set(0,200,100);
 		light.castShadow = true;
 		light.shadow.camera.top = 180;
 		light.shadow.camera.bottom = -100;
 		light.shadow.camera.left = -120;
 		light.shadow.camera.right = 120;
-		eathex.scene.add( light );
+		eathex.scene.add(light);
 
-		var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
-		mesh.rotation.x = - Math.PI / 2;
+		var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000,2000),new THREE.MeshPhongMaterial({color:0x999999,depthWrite:false}));
+		mesh.rotation.x = -Math.PI/2;
 		mesh.receiveShadow = true;
-		eathex.scene.add( mesh );
+		eathex.scene.add(mesh);
 
 		eathex.scene.add(eathex.camera);
-
-		var grid = new THREE.GridHelper( 2000, 20, 0x000000, 0x000000 );
-		grid.material.opacity = 0.2;
-		grid.material.transparent = true;
-		eathex.scene.add(grid);
 		
 		$(document).ready(function(){resize();});
 
@@ -153,31 +147,64 @@ function init_3D(has_controls){
 function resize() {
 	var width = eathex.target_element.clientWidth;
 	var height = eathex.target_element.clientHeight;
-	eathex.renderer.setSize(width, height);
+	eathex.renderer.setSize(width,height);
 	eathex.camera.aspect = width/height;
 }
 
 function loadMesh(filename){
 	if(eathex.ready){
+		$("#eathex_render_window").prepend("<div id='eathex_load'><div id='eathex_load_widget'></div></div>");
+		
+		$("#eathex_load").css({
+			"position":"absolute",
+			"background-color":"rgba(0,0,0,1)",
+			"width":"100%",
+			"height":"100%"
+		});
+		
+		$("#eathex_load_widget").css({
+			"display":"flex",
+			"position":"absolute",
+			"width":"25%",
+			"height":"25%",
+			"background-color":"rgba(255,255,255,1)",
+			"text-align":"center",
+			"top":"0","left":"0","bottom":"0","right":"0",
+			"margin":"auto",
+			"justify-content":"center",
+			"flex-direction":"column",
+			"font-family":"Comic Sans MS, cursive, sans-serif",
+			"font-size":"200%",
+			"transition":"background-color 1s",
+			"-webkit-transition":"background-color 1s"
+		});
+		
 		if(eathex.mesh == null){
-			var loader = new THREE.FBXLoader();
-			loader.load( filename, function ( object ) {
-				object.mixer = new THREE.AnimationMixer( object );
-
-				object.traverse( function ( child ) {
-					if ( child.isMesh ) {
-						child.castShadow = true;
-						child.receiveShadow = true;
+			var loader = new THREE.FBXLoader(new THREE.LoadingManager());
+			loader.load(
+				filename,
+				function(obj){
+					eathex.scene.add(obj);
+					eathex.mesh = obj;
+					
+				},
+				function(xhr){
+					$("#eathex_load_widget").text(Math.round(xhr.loaded/xhr.total*100));
+					if(Math.round(xhr.loaded/xhr.total*100) == 100){ 
+						$("#eathex_load").css({"background-color":"rgba(0,0,0,0)"});
+						$("#eathex_render_window").on('transitionend webkitTransitionEnd oTransitionEnd', function(){
+							$("#eathex_load").remove(); 
+						});
 					}
+				},
+				function(err){
+					console.error(err);
 				});
-					eathex.scene.add( object );
-			} );
-		}		
+		}
+		else{ eathex.scene.add(eathex.mesh); }		
 	}
-	else{ eathex.scene.add(eathex.mesh); }
 }
-
-
+	
 
 function animate(){
 	requestAnimationFrame(animate);
@@ -188,26 +215,17 @@ function animate(){
 //Manage the window's sizing
 $(window).resize(function(){
 	if(eathex.ready){
-		$("#eathex_render_window").css("height",($(window).height()*0.8)+"px");
-		$("#eathex_render_window").css("width",($(window).height()*0.8)+"px");
+			$("#eathex_render_window").css("height",($(window).height()*0.8)+"px");
+			$("#eathex_render_window").css("width",($(window).height()*0.8)+"px");
 		eathex.renderer.setSize(($(window).height()*0.8)+1, ($(window).height()*0.8)+1);
 	}
 });
 
-function promisifyLoader ( loader, onProgress ) {
-
-  function promiseLoader ( url ) {
-
-    return new Promise( ( resolve, reject ) => {
-
-      loader.load( url, resolve, onProgress, reject );
-
-    } );
+function promisifyLoader(loader,onProgress){
+  function promiseLoader(url){
+    return new Promise((resolve,reject) => {
+      loader.load(url,resolve,onProgress,reject);
+    });
   }
-
-  return {
-    originalLoader: loader,
-    load: promiseLoader,
-  };
-
+  return{originalLoader:loader,load:promiseLoader};
 }
