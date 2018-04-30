@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>A Thing</title>
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="build/three.js"></script>
+		<script src="OrbitControls.js"></script>
+		<style>
+			body{
+				margin: 0px;
+				padding: 0px;
+			}
+			#target{
+				position:fixed;
+				width:100%;
+				height:100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="target"></div>
+		<script>
+			var ready = false;
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera();
+			camera.position.x = 3;
+			camera.position.y = 1;
+			camera.position.z = 3;
+			var renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
+			var target_element = document.getElementById("target").appendChild(renderer.domElement);
+			var controls = new THREE.OrbitControls(camera, target_element);
+			//scene.background = new THREE.Color(0xa0a0a0);
+			scene.add(camera);
+			
+			var shader = THREE.FresnelShader;
+
+			var mesh = new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load('media/check.jpg')}));
+			mesh.rotation.x = -Math.PI/2;
+			mesh.receiveShadow = true;
+			scene.add(mesh);
+			
+			var s = new THREE.SphereGeometry(0.5,32,32);
+			var cube_camera = new THREE.CubeCamera(0.1,5000,2048);
+			scene.add(cube_camera);
+			cube_camera.renderTarget.texture.mapping = THREE.CubeRefractionMapping;
+			var m = new THREE.MeshStandardMaterial({color:0x000000});
+			var x = new THREE.Mesh(s,m);
+			x.position.set(0,.5,0);
+			cube_camera.position.set(x.position);
+			x.material.envMap = cube_camera.renderTarget.texture;
+			scene.add(x);
+				
+			var light = new THREE.HemisphereLight(0xffffff,0x444444);
+			light.position.set(0,200,0);
+			scene.add(light);
+			
+			var ready = true;
+			
+			$(document).ready(function(){resize();});
+			animate();
+			
+			function resize() {
+				var width = $(window).height();
+				var height = $(window).height();
+				renderer.setSize(width,height);
+				camera.aspect = width/height;
+			}
+			
+			function animate(){
+				requestAnimationFrame(animate);
+				mesh.visible = false;
+				cube_camera.update(renderer, scene);
+				mesh.visible = true;
+				renderer.render(scene,camera);
+				controls.update();
+			}
+
+			//Manage the window's sizing
+			$(window).resize(function(){
+				renderer.setSize(($(window).height()), ($(window).height()));
+			});
+		</script>
+	</body>
+</html>
