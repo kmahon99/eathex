@@ -114,15 +114,23 @@ function init_3D(has_controls){
 	if(eathex.target_element != null){
 		eathex.scene  = new THREE.Scene();
 		eathex.camera = new THREE.PerspectiveCamera();
-		eathex.camera.position.z = 3;
-		eathex.camera.position.x = 3;
+		eathex.camera.position.z = 4;
+		eathex.camera.position.x = 0;
 		eathex.camera.position.y = 1;
 		eathex.controls = new THREE.OrbitControls(eathex.camera, eathex.target_element);
+		eathex.controls.enablePan = false;
+		eathex.controls.enableDamping = true;
+		eathex.controls.dampingFactor = 0.15;
+		eathex.controls.rotateSpeed = 0.25;
+		eathex.controls.minDistance = 0.1;
+		eathex.controls.maxDistance = 5;
+		eathex.controls.maxPolarAngle = Math.PI/2.05;
+		eathex.controls.screenSpacePanning = false;
 		eathex.renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
 		eathex.target_element.appendChild(eathex.renderer.domElement);
 		
-		eathex.scene.background = new THREE.Color(0xa0a0a0);
-		//eathex.scene.fog = new THREE.Fog(0xa0a0a0,20,100);
+		eathex.scene.background = new THREE.Color(0xffffff);
+		//eathex.scene.fog = new THREE.Fog(0xffffff,5,20);
 
 		var light = new THREE.HemisphereLight(0xffffff,0x444444);
 		light.position.set(0,200,0);
@@ -219,7 +227,8 @@ function loadMesh(filename){
 function animate(){
 	requestAnimationFrame(animate);
 	if(eathex.mesh){ 
-		eathex.mesh.rotation.y += 0.001; 
+		//eathex.mesh.rotation.y += 0.001; 
+		
 	}
 	eathex.renderer.render(eathex.scene,eathex.camera);
 	eathex.controls.update();
